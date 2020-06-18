@@ -6,7 +6,7 @@ NetShell is a small network utility tool to manage remote shell connections from
 
 Connect to a remote server (bind):
 ```
-ns www.deadf00d.com 1337
+ns 127.0.0.1 1337
 ```
 Setup a server for remote connections (reverse)
 ```
