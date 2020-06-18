@@ -3,18 +3,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <ctype.h>
-
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#include <unistd.h>
-#include <pthread.h>
-
 #include "connection.h"
 #include "utils.h"
 #include "terminal.h"
 #include "handlers.h"
+#include "arguments.h"
 
 #define VERSION "1.2"
 
@@ -40,66 +33,30 @@ void version(){
 }
 
 int main(int argc, char *argv[]) {
-    bool isServer = false;
-    bool isClient = false;
-
-    char *cip;
-    int cport = 0;
-
-    int lport;
-
-
     if(argc == 1){
         help(argv[0]);
         exit_(1);
     }
 
-
-    int c;
-    while((c = getopt(argc, argv, ":l:vh")) != -1){
-        switch (c) {
-            case 'h':
-                help(argv[0]);
-                exit_(1);
-                break;
-            case 'l':
-                if(!stringIsDigit(optarg)){
-                    error("Invalid bind port.");
-                    exit_(1);
-                }
-                lport = atoi(optarg);
-                isServer = true;
-                break;
-            case 'v':
-                version();
-                exit_(1);
-                break;
-            case '?':
-                error("Unknown option: %c, please check help.", optopt);
-                exit_(1);
-                break;
-        }
-    }
-
-    if(optind + 2 <= argc){
-        cip = argv[optind];
-        cport = atoi(argv[optind+1]);
-        isClient = true;
-    }
-
-    if((!isServer && !isClient) || (isServer && isClient)){
-        error("Server or client ?");
-        exit_(1);
-    }
+    Arguments a;
+    Arguments_Process(&a, argc, argv);
 
     Connection *connection;
     Connection_Init(&connection);
 
-    if(isServer){
-        server(connection, lport);
+    if(a.isServer){
+        server(connection, a.serverPort);
     }
-    else if(isClient){
-        client(connection, cip, cport);
+    else if(a.isClient){
+        client(connection, a.clientIp, a.clientPort);
+    }
+    else if(a.help){
+        help(argv[0]);
+        exit_(1);
+    }
+    else if(a.version){
+        version();
+        exit_(1);
     }
 
     return 0;
