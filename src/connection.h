@@ -22,5 +22,6 @@ void Connection_Init(Connection **connection);
 
 int Connection_setIpPortAddress(Connection *c, char *ip, int port);
 int Connection_Connect(Connection *c);
+struct in_addr *Connection_ResolveHostname(char *hostname);
 
 #endif

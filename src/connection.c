@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
+
+#include <netdb.h>
 
 #include "connection.h"
 #include "utils.h"
@@ -27,6 +30,8 @@ void Connection_Init(Connection **connection){
 }
 
 int Connection_setIpPortAddress(Connection *c, char *ip, int port){
+    struct in_addr *hostname_addr;
+
     if(Connection_isValidIpv4(ip)){
         c->addr.sin_family = AF_INET;
         c->addr.sin_port = htons(port);
@@ -41,6 +46,17 @@ int Connection_setIpPortAddress(Connection *c, char *ip, int port){
         inet_pton(AF_INET6, ip, &(c->addr6.sin6_addr));
 
         c->type = IPV6;
+        return c->type;
+    }
+    else if((hostname_addr = Connection_ResolveHostname(ip)) != NULL){
+        //c->addr.sin_addr = hostname_addr;
+        memcpy((void*)(&(c->addr.sin_addr)), hostname_addr, sizeof(struct in_addr));
+        printf("Resolved to: %s\n", inet_ntoa(c->addr.sin_addr));
+        
+        c->addr.sin_family = AF_INET;
+        c->addr.sin_port = htons(port);
+
+        c->type = IPV4;
         return c->type;
     }
     return -1;
@@ -60,4 +76,19 @@ int Connection_Connect(Connection *c){
         return 1;
     }
     return -1;
+}
+
+struct in_addr *Connection_ResolveHostname(char *hostname){
+    struct hostent *he;
+    struct in_addr **addr_list;
+    if(( he = gethostbyname(hostname) ) == NULL){
+        return 0;
+    }
+
+    addr_list = (struct in_addr**) he->h_addr_list;
+    int i=0;
+    for(int i=0;addr_list[i]!=NULL;i++);
+
+    //printf("Resolved to: %s\n", inet_ntoa(*(addr_list[0])));
+    return addr_list[0];
 }
