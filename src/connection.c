@@ -49,10 +49,8 @@ int Connection_setIpPortAddress(Connection *c, char *ip, int port){
         return c->type;
     }
     else if((hostname_addr = Connection_ResolveHostname(ip)) != NULL){
-        //c->addr.sin_addr = hostname_addr;
         memcpy((void*)(&(c->addr.sin_addr)), hostname_addr, sizeof(struct in_addr));
-        printf("Resolved to: %s\n", inet_ntoa(c->addr.sin_addr));
-        
+
         c->addr.sin_family = AF_INET;
         c->addr.sin_port = htons(port);
 
@@ -88,7 +86,6 @@ struct in_addr *Connection_ResolveHostname(char *hostname){
     addr_list = (struct in_addr**) he->h_addr_list;
     int i=0;
     for(int i=0;addr_list[i]!=NULL;i++);
-
-    //printf("Resolved to: %s\n", inet_ntoa(*(addr_list[0])));
+    
     return addr_list[0];
 }

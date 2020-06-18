@@ -79,8 +79,6 @@ int client(Connection *c, char *ip, int port){
         exit_(1);
     }
 
-    printf("Now connected.\n");
-
     connectionHandler(c);
 
     return 0;
