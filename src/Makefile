@@ -5,7 +5,7 @@ EXEC=ns
 
 all: $(EXEC)
 
-ns: connection.o terminal.o utils.o main.o
+ns: connection.o terminal.o utils.o handlers.o main.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
