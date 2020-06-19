@@ -31,16 +31,24 @@ void *connectionHandlerReadingThreadHandler(void *arg){
     else if(read_size == -1){
         error("recv() failed.");
     }
-    exit_(1);
 
     close(c->socket);
     free(arg);
+
+    exit_(1);
     return NULL;
+}
+
+void sendTerminalSize(Connection *c, struct winsize w){
+    char str[255];
+    sprintf(str, "stty rows %d cols %d\n", w.ws_row, w.ws_col);
+    send(c->socket, str, strlen(str), 0);
 }
 
 int connectionHandler(Connection *c){
     TerminalStart();
     send(c->socket, "python -c 'import pty; pty.spawn(\"/bin/bash\")'\n", 48, 0);
+    sendTerminalSize(c, TerminalGetSize());
 
     pthread_t connectionHandlerReadingThread;
     if(pthread_create(&connectionHandlerReadingThread, NULL, connectionHandlerReadingThreadHandler, (void*)c) < 0){

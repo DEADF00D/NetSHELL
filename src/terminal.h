@@ -8,6 +8,7 @@ extern struct termios OriginalTermios;
 
 void TerminalStart();
 void TerminalStop(void);
+struct winsize TerminalGetSize();
 void exit_(int ex);
 
 #endif

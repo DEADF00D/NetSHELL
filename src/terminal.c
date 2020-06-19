@@ -26,6 +26,12 @@ void TerminalStart(){
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &new_opts);
 }
 
+struct winsize TerminalGetSize(){
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return w;
+}
+
 void exit_(int ex){
     exit(ex);
 }
