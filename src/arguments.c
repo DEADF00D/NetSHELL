@@ -9,12 +9,14 @@
 #include "arguments.h"
 #include "terminal.h"
 
-void Arguments_Process(Arguments *a, int argc, char *argv[]){
+void Arguments_Init(Arguments *a){
     a->isClient = false;
     a->isServer = false;
     a->help = false;
     a->version = false;
+}
 
+void Arguments_Process(Arguments *a, int argc, char *argv[]){
     int c;
     while((c = getopt(argc, argv, ":l:vh")) != -1){
         switch (c) {
@@ -31,6 +33,12 @@ void Arguments_Process(Arguments *a, int argc, char *argv[]){
                 }
                 a->serverPort = atoi(optarg);
                 a->isServer = true;
+                break;
+            case 'x':
+                printf("Ok, it's gonna be unix.\n");
+                break;
+            case 'w':
+                printf("Ok, it's gonna be windows.\n");
                 break;
             case '?':
                 error("Unknown option: %c, please check help.", optopt);

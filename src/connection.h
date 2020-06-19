@@ -19,6 +19,7 @@ bool Connection_isValidIpv4(char *ipAddress);
 bool Connection_isValidIpv6(char *ipAddress);
 
 void Connection_Init(Connection **connection);
+int Connection_Free(Connection *connection);
 
 int Connection_setIpPortAddress(Connection *c, char *ip, int port);
 int Connection_Connect(Connection *c);

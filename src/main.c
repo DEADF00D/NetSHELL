@@ -38,26 +38,29 @@ int main(int argc, char *argv[]) {
         exit_(1);
     }
 
-    Arguments a;
-    Arguments_Process(&a, argc, argv);
+    Arguments args;
+    Arguments_Init(&args);
+    Arguments_Process(&args, argc, argv);
 
     Connection *connection;
     Connection_Init(&connection);
 
-    if(a.isServer){
-        server(connection, a.serverPort);
+    if(args.isServer){
+        server(connection, &args);
     }
-    else if(a.isClient){
-        client(connection, a.clientIp, a.clientPort);
+    else if(args.isClient){
+        client(connection, &args);
     }
-    else if(a.help){
+    else if(args.help){
         help(argv[0]);
         exit_(1);
     }
-    else if(a.version){
+    else if(args.version){
         version();
         exit_(1);
     }
+
+    Connection_Free(connection);
 
     return 0;
 }

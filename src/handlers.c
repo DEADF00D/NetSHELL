@@ -11,6 +11,7 @@
 #include "connection.h"
 #include "terminal.h"
 #include "utils.h"
+#include "arguments.h"
 
 void *connectionHandlerReadingThreadHandler(void *arg){
     Connection *c = (Connection*)arg;
@@ -65,24 +66,24 @@ int connectionHandler(Connection *c){
     TerminalStop();
 }
 
-int client(Connection *c, char *ip, int port){
+int client(Connection *c, Arguments *args){
     c->socket = socket(AF_INET, SOCK_STREAM, 0);
     if(c->socket == -1){
         error("Cannot create socket.");
         exit_(1);
     }
 
-    if(Connection_setIpPortAddress(c, ip, port) == -1){
-        error("Invalid remote server %s:%d", ip, port);
+    if(Connection_setIpPortAddress(c, args->clientIp, args->clientPort) == -1){
+        error("Invalid remote server %s:%d", args->clientIp, args->clientPort);
         exit_(1);
     }
 
     if(!Connection_Connect(c)){
         if(c->type == IPV4){
-            error("Cannot connect to remote server (%s:%d).", ip, port);
+            error("Cannot connect to remote server (%s:%d).", args->clientIp, args->clientPort);
         }
         else if(c->type == IPV6){
-            error("Cannot connect to remote server ([%s]:%d).", ip, port);
+            error("Cannot connect to remote server ([%s]:%d).", args->clientIp, args->clientPort);
         }
         exit_(1);
     }
@@ -92,7 +93,7 @@ int client(Connection *c, char *ip, int port){
     return 0;
 }
 
-int server(Connection *c, int port){
+int server(Connection *c, Arguments *args){
     c->socket = socket(AF_INET, SOCK_STREAM, 0);
     if(c->socket == -1){
         error("Cannot create socket.");
@@ -101,12 +102,12 @@ int server(Connection *c, int port){
 
     c->addr.sin_family = AF_INET;
     c->addr.sin_addr.s_addr = INADDR_ANY;
-    c->addr.sin_port = htons(port);
+    c->addr.sin_port = htons(args->serverPort);
 
     c->type = IPV4;
 
     if(bind(c->socket, (struct sockaddr*)&(c->addr), sizeof(c->addr)) < 0){
-        error("Bind failed on %d.", port);
+        error("Bind failed on %d.", args->serverPort);
         exit_(1);
     }
 

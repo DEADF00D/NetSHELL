@@ -16,6 +16,7 @@ typedef struct{
     bool version;
 } Arguments;
 
+void Arguments_Init(Arguments *a);
 void Arguments_Process(Arguments *a, int argc, char *argv[]);
 
 #endif

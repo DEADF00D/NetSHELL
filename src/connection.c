@@ -29,6 +29,12 @@ void Connection_Init(Connection **connection){
     }
 }
 
+int Connection_Free(Connection *connection){
+    if(connection!=NULL){ return 0; }
+    free(connection);
+    return 1;
+}
+
 int Connection_setIpPortAddress(Connection *c, char *ip, int port){
     struct in_addr *hostname_addr;
 
@@ -86,6 +92,6 @@ struct in_addr *Connection_ResolveHostname(char *hostname){
     addr_list = (struct in_addr**) he->h_addr_list;
     int i=0;
     for(int i=0;addr_list[i]!=NULL;i++);
-    
+
     return addr_list[0];
 }
