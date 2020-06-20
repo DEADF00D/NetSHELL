@@ -45,10 +45,10 @@ int main(int argc, char *argv[]) {
     Connection *connection;
     Connection_Init(&connection);
 
-    if(args.isServer){
+    if(args.server){
         server(connection, &args);
     }
-    else if(args.isClient){
+    else if(args.client){
         client(connection, &args);
     }
     else if(args.help){

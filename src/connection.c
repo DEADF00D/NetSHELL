@@ -90,8 +90,25 @@ struct in_addr *Connection_ResolveHostname(char *hostname){
     }
 
     addr_list = (struct in_addr**) he->h_addr_list;
-    int i=0;
-    for(int i=0;addr_list[i]!=NULL;i++);
-
     return addr_list[0];
+}
+
+int Connection_RecvLine(Connection *c, char **line){
+    *line = (char*)calloc(1, sizeof(char));
+
+    int len, y=0;
+    char s[2];
+    while((len = recv(c->socket, s, 1, 0)) > 0){
+        if(s[0] == '\n'){ break; }
+
+        *line = (char*)realloc(*line, sizeof(char)*(y+3));
+        (*line)[y] = s[0];
+        (*line)[y+1] = 0;
+        y++;
+    }
+
+    if(len == -1 || len == 0){
+        return 0;
+    }
+    return y;
 }

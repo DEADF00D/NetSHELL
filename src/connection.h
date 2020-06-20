@@ -25,4 +25,6 @@ int Connection_setIpPortAddress(Connection *c, char *ip, int port);
 int Connection_Connect(Connection *c);
 struct in_addr *Connection_ResolveHostname(char *hostname);
 
+int Connection_RecvLine(Connection *c, char **line);
+
 #endif
